@@ -73,7 +73,7 @@ el('rollBtn').onclick=()=>{
     revealed=true;
     overlay.classList.add('hidden');
     el('diceContainer').replaceChildren(...results.map(([name,color])=>{
-      const wrap=document.createElement('div');wrap.className='die-wrapper';
+      const wrap=document.createElement('div');wrap.className='die-wrapper dice-result-reveal';
       const face=document.createElement('div');face.className='die';face.style.backgroundColor=color;
       const pip=document.createElement('div');pip.className='die-dot';face.append(pip);
       const label=document.createElement('div');label.className='die-label';label.style.color=color;label.textContent=name;
@@ -180,7 +180,7 @@ counterPicker.onclick=()=>toggleCounterMenu(counterMenu.hidden);
 for(const button of itemButtons)button.onclick=()=>{
   selectedItem=button.dataset.counterItem;
   toggleCounterMenu(false);
-  saveCounter();
+  renderCounter();
   counterPicker.focus();
 };
 document.addEventListener('click',event=>{
@@ -193,13 +193,7 @@ counterPicker.parentElement.addEventListener('keydown',event=>{
     counterPicker.focus();
   }
 });
-const counterStorageKey='offline-dice-item-counters';
 const totals=Object.fromEntries(counterItems.map(item=>[item,0]));
-try{
-  const saved=JSON.parse(localStorage.getItem(counterStorageKey)||'{}');
-  for(const item of counterItems)if(Number.isSafeInteger(saved.totals?.[item]))totals[item]=saved.totals[item];
-  if(counterItems.includes(saved.selected))selectedItem=saved.selected;
-}catch{}
 function renderCounter(){
   for(const button of itemButtons){
     const active=button.dataset.counterItem===selectedItem;
@@ -209,15 +203,11 @@ function renderCounter(){
   const total=totals[selectedItem]/4;
   counterOutput.textContent=(total>=0?'+':'−')+Math.abs(total);
 }
-function saveCounter(){
-  try{localStorage.setItem(counterStorageKey,JSON.stringify({selected:selectedItem,totals}));}catch{}
-  renderCounter();
-}
 for(const button of el('itemCounter').querySelectorAll('[data-counter-change]')){
   button.onclick=()=>{
     const item=selectedItem;
     totals[item]+=Number(button.dataset.counterChange)*4;
-    saveCounter();
+    renderCounter();
   };
 }
 renderCounter();

@@ -110,7 +110,6 @@ body .site-footer .lang-footer-btn { display:inline-flex !important; justify-con
 body .site-footer .news-ticker-bar { border-color:#e6a833 !important; }
 #newsTickerText { text-transform:uppercase; }
 #overlayDiceContainer .initial-shake { animation-iteration-count:3 !important; }
-#rollOverlay.hidden { transition: none; }
 #vipInfoDialog { background:#15151d; color:white; border:2px solid #edbc3e; border-radius:14px; padding:20px; max-width:calc(100vw - 40px); }
 #vipInfoDialog::backdrop { background:#0009; }
 #vipInfoDialog button { padding:6px 14px; border-radius:7px; }
@@ -128,4 +127,17 @@ body .site-footer .news-ticker-bar { border-color:#e6a833 !important; }
 @media(max-width:440px){
   body { padding-bottom:145px; }
   body .site-footer .footer-left-group, body .site-footer .footer-center-group { flex:1 0 100%; justify-content:center; }
+}
+
+/* Briefly dissolve the roll screen as the result settles into place. */
+#rollOverlay { transition: opacity 135ms ease-out; }
+#rollOverlay.hidden { opacity: 0; }
+.dice-result-reveal { animation: dice-result-settle 200ms cubic-bezier(.2,.8,.3,1) both; }
+@keyframes dice-result-settle {
+  from { opacity:.65; transform:translateY(-5px) scale(.97); }
+  to { opacity:1; transform:translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #rollOverlay { transition:none; }
+  .dice-result-reveal { animation:none; }
 }
