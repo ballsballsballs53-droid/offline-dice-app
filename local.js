@@ -1,5 +1,5 @@
 const el=id=>document.getElementById(id);
-for(const id of ['openVipLoginBtn','langDropupBtn','usersOnlineCount','bgSelect','leftStreamerList','rightStreamerList','newsTickerText'])el(id)?.parentElement?.classList.add('source-hidden-'+id);
+for(const id of ['usersOnlineCount','bgSelect','leftStreamerList','rightStreamerList'])el(id)?.parentElement?.classList.add('source-hidden-'+id);
 const palettes={neon:['#ec4eff','#27f8d3','#89fa31','#4a8bff'],pastel:['#fabbd8','#b4e4ff','#c9ebaf','#e4c2ff'],gold:['#f9d774','#dba640','#ffedac','#c98c24'],monochrome:['#aeb5c2','#8591a5','#d8deea','#6e7c91']};
 const colors=[['Red','#ff0000'],['Orange','#ffa500'],['Yellow','#ffd700'],['Green','#008000'],['Blue','#0000ff'],['Purple','#800080']];
 function pick(n){const a=new Uint32Array(1),limit=2**32-(2**32%n);do{crypto.getRandomValues(a)}while(a[0]>=limit);return a[0]%n;}
@@ -57,10 +57,20 @@ function renderHistory(){
     return row;
   }));
 }
+const rollMessages=["YOU'RE COOKED…","GOOD LUCK :)","AMAZING!","LET'S SEE…","OFFLINE DICE ON TOP!","ROLLING…"];
+const rollImpactTime=1.38;
+let previousRollMessage=-1;
 el('rollBtn').onclick=()=>{
+  const audio=el('diceRollAudio');
   const results=Array.from({length:Number(el('diceCount').value)},()=>colors[pick(6)]);
   const button=el('rollBtn'), overlay=el('rollOverlay'), stage=el('overlayDiceContainer');
-  function finish(){
+  const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let revealed=false;
+  let fallback;
+  let frame;
+  function reveal(){
+    if(revealed)return;
+    revealed=true;
     overlay.classList.add('hidden');
     el('diceContainer').replaceChildren(...results.map(([name,color])=>{
       const wrap=document.createElement('div');wrap.className='die-wrapper';
@@ -71,16 +81,46 @@ el('rollBtn').onclick=()=>{
     }));
     el('rollsTodayCount').textContent=++rolls;
     void saveRollProof(results);recentRolls.unshift(results);if(recentRolls.length>25)recentRolls.pop();
-    renderHistory();button.disabled=false;el('diceCount').disabled=false;
+    renderHistory();
   }
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
+  function finish(){
+    clearTimeout(fallback);
+    cancelAnimationFrame(frame);
+    audio.removeEventListener('ended',finish);
+    audio.removeEventListener('error',finish);
+    reveal();
+    button.disabled=false;el('diceCount').disabled=false;
+  }
+  function followAudio(){
+    if(audio.currentTime>=rollImpactTime){reveal();return;}
+    frame=requestAnimationFrame(followAudio);
+  }
   button.disabled=true;el('diceCount').disabled=true;
-  el('overlayTitle').textContent='GOOD LUCK :)';
-  stage.replaceChildren(...results.map(()=>{
-    const die=document.createElement('div');die.className='big-die initial-shake';
-    const dot=document.createElement('div');dot.className='big-die-dot';die.append(dot);return die;
-  }));
-  overlay.classList.remove('hidden');setTimeout(finish,850);
+  if(!reduceMotion){
+    let message=pick(rollMessages.length-(previousRollMessage<0?0:1));
+    if(previousRollMessage>=0&&message>=previousRollMessage)message++;
+    previousRollMessage=message;
+    el('overlayTitle').textContent=rollMessages[message];
+    stage.replaceChildren(...results.map(()=>{
+      const die=document.createElement('div');die.className='big-die initial-shake';
+      const dot=document.createElement('div');dot.className='big-die-dot';die.append(dot);return die;
+    }));
+    overlay.classList.remove('hidden');
+  }
+  audio.addEventListener('ended',finish,{once:true});
+  audio.addEventListener('error',finish,{once:true});
+  fallback=setTimeout(()=>{
+    audio.pause();
+    finish();
+  },4000);
+  audio.currentTime=0;
+  frame=requestAnimationFrame(followAudio);
+  void audio.play().catch(()=>{
+    clearTimeout(fallback);
+    cancelAnimationFrame(frame);
+    if(!button.disabled)return;
+    fallback=setTimeout(finish,reduceMotion?0:850);
+  });
 };
 const canvas=el('wheelCanvas'),ctx=canvas.getContext('2d'),box=el('wheelNamesTextarea'),spin=el('spinWheelBtn');
 const names=()=>box.value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).slice(0,100);
@@ -217,3 +257,12 @@ async function refreshStreamerStatus(){
 void refreshStreamerStatus();
 setInterval(refreshStreamerStatus,25000);
 
+
+const tickerToggle=el('tickerToggle');
+tickerToggle.onclick=()=>{
+  const paused=el('newsTickerText').classList.toggle('ticker-paused');
+  tickerToggle.setAttribute('aria-pressed',String(paused));
+  tickerToggle.setAttribute('aria-label',paused?'Resume updates':'Pause updates');
+};
+
+el('vipInfoButton').onclick=()=>el('vipInfoDialog').showModal();

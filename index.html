@@ -1184,7 +1184,7 @@
       }
     }
   </style>
-<style>.source-hidden-gameIdDisplay,.source-hidden-usersOnlineCount,.source-hidden-openVipLoginBtn,.source-hidden-langDropupBtn,.source-hidden-blurToggleBtn,.source-hidden-selectedItemBtn,.source-hidden-leftStreamerList,.source-hidden-rightStreamerList,.source-hidden-newsTickerText,#bgSelect,.global-goal-card,.counter-row,#vipLoginOverlay,#winnerModal,#resetNoticeModal,#headerVipBadge,#externalVipBanner,#wheelThemeSelect,#wheelDurationSelect,#wheelEasingSelect,#wheelSoundToggle,#wheelVolumeSlider,#wheelShowWinnerPopup,#wheelAutoDeduplicateToggle{display:none!important}.app-brand{text-align:center;color:white;font:700 clamp(28px,5vw,50px) Fredoka,system-ui;margin:14px 0}label:has(>#wheelThemeSelect),label:has(>#wheelDurationSelect),label:has(>#wheelEasingSelect),label:has(>#wheelSoundToggle),label:has(>#wheelVolumeSlider),label:has(>#wheelShowWinnerPopup),label:has(>#wheelAutoDeduplicateToggle){display:none!important}</style><link rel="stylesheet" href="refinements.css?v=streamer-live"></head>
+<style>.source-hidden-gameIdDisplay,.source-hidden-usersOnlineCount,.source-hidden-openVipLoginBtn,.source-hidden-langDropupBtn,.source-hidden-blurToggleBtn,.source-hidden-selectedItemBtn,.source-hidden-leftStreamerList,.source-hidden-rightStreamerList,.source-hidden-newsTickerText,#bgSelect,.global-goal-card,.counter-row,#vipLoginOverlay,#winnerModal,#resetNoticeModal,#headerVipBadge,#externalVipBanner,#wheelThemeSelect,#wheelDurationSelect,#wheelEasingSelect,#wheelSoundToggle,#wheelVolumeSlider,#wheelShowWinnerPopup,#wheelAutoDeduplicateToggle{display:none!important}.app-brand{text-align:center;color:white;font:700 clamp(28px,5vw,50px) Fredoka,system-ui;margin:14px 0}label:has(>#wheelThemeSelect),label:has(>#wheelDurationSelect),label:has(>#wheelEasingSelect),label:has(>#wheelSoundToggle),label:has(>#wheelVolumeSlider),label:has(>#wheelShowWinnerPopup),label:has(>#wheelAutoDeduplicateToggle){display:none!important}</style><link rel="stylesheet" href="refinements.css?v=audio-impact"></head>
 <body><h1 class="app-brand"><img src="offline-dice-logo.png?v=2" width="2172" height="724" alt="Offline Dice"></h1>
 
   <header style="margin: 0; padding: 10px 0 0 0; position: relative; display: inline-block; width: 100%; text-align: center;">
@@ -1615,22 +1615,7 @@
   </div>
 
   <footer class="site-footer">
-    <div class="footer-left-group">
-      <button id="openVipLoginBtn" class="vip-footer-btn" data-i18n="vipLogin">VIP LOGIN</button>
-
-      <div class="lang-dropup-container">
-        <button id="langDropupBtn" class="lang-footer-btn">נ ENGLISH ג–²</button>
-        <div id="langDropupMenu" class="lang-dropup-menu">
-          <div class="lang-option"> English</div>
-          <div class="lang-option"> Indonesian</div>
-          <div class="lang-option"> Franֳ§ais</div>
-          <div class="lang-option"> Russian</div>
-          <div class="lang-option"> Espaֳ±ol</div>
-          <div class="lang-option"> German</div>
-        </div>
-      </div>
-    </div>
-
+    <div class="footer-left-group"><button type="button" id="vipInfoButton" class="vip-footer-btn">VIP LOGIN</button><span class="lang-footer-btn" aria-label="Site language: English">&#127760; ENGLISH</span></div>
     <div class="footer-center-group">
       <a href="https://www.tiktok.com/@yarchis1" target="_blank" class="tiktok-footer-btn" data-i18n="ourTikTok">OUR TIKTOK</a>
       <a href="https://discord.gg/XSNDFruwR" target="_blank" class="discord-footer-btn" data-i18n="ourDiscord">OUR DISCORD</a>
@@ -1638,15 +1623,15 @@
 
     <!-- BOTTOM RIGHT NEWS TICKER BANNER -->
     <div class="news-ticker-bar">
-      <div class="news-ticker-badge">נ“¢ UPDATES</div>
+      <button type="button" class="news-ticker-badge" id="tickerToggle" aria-controls="newsTickerText" aria-pressed="false" aria-label="Pause updates">&#128227; UPDATES</button>
       <div class="news-ticker-content">
-        <div class="news-ticker-text" id="newsTickerText">
-          נ‰ NEW "MENTALIST נ˜¡" BACKGROUND IS NOW LIVE! ג€¢ נ² WELCOME TO OFFLINE DICE ג€” 100% FAIR CSPRNG ROLLS ג€¢ נ€ JOIN OUR DISCORD TO APPLY FOR TOP STREAMER LIST! FOLLOW OUR TIKTOK LINKED IN THE BOTTOM OF THE SCREEN! נ€ 
-        </div>
+        <div class="news-ticker-text" id="newsTickerText"><span>Welcome to Offline Dice! &nbsp; • &nbsp; Try the Mentalist background &nbsp; • &nbsp; Join our Discord for updates &nbsp; • &nbsp; Follow our TikTok.</span><span aria-hidden="true">Welcome to Offline Dice! &nbsp; • &nbsp; Try the Mentalist background &nbsp; • &nbsp; Join our Discord for updates &nbsp; • &nbsp; Follow our TikTok.</span></div>
       </div>
     </div>
   </footer>
+  <dialog id="vipInfoDialog"><h2>VIP Login</h2><p>VIP login is unavailable on this site.</p><form method="dialog"><button>Close</button></form></dialog>
 
+  <audio id="diceRollAudio" src="dice-roll.wav?v=3" preload="auto"></audio>
   <div id="rollOverlay" class="roll-overlay hidden">
     <h2 id="overlayTitle" class="overlay-title">GOOD LUCK :)</h2>
     <div id="overlayDiceContainer" class="overlay-dice-container"></div>
