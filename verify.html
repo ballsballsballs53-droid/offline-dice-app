@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Session Roll Verifier | Offline Dice</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap">
+<style>
+@font-face{font-family:Marvin;src:url("397-font_1.otf") format("opentype");font-display:swap}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#0b242b,#0b1215 75%);color:#eee;font:500 1rem Fredoka,system-ui,sans-serif}main{width:min(720px,calc(100% - 32px));margin:0 auto;padding-bottom:32px}.logo{display:block;width:min(425px,92%);margin:4px auto 24px}.logo img{display:block;width:100%;height:auto}.panel{padding:32px 28px;border:2px solid #414146;border-top:3px solid #00d2ef;border-radius:23px;background:linear-gradient(130deg,#15151d,#0d0d13);box-shadow:0 16px 34px #0006;text-align:center}h1{font:clamp(1.65rem,5vw,2.2rem) Marvin,Fredoka,sans-serif;color:white;text-shadow:2px 2px #555,-2px -2px #555,-2px 2px #555,2px -2px #555,0 4px #252525;margin:4px 0 20px;text-transform:uppercase}p{margin:0 0 25px;color:#d2d2d4}form{display:flex;gap:12px;margin-bottom:22px}input,button{font:inherit;min-height:54px;border-radius:14px}input{flex:1;min-width:0;background:#08080c;color:white;border:2px solid #00768b;text-align:center;font-weight:700;letter-spacing:.09em;padding:8px;text-transform:uppercase}button{background:linear-gradient(#ffec48,#ff9d00);border:2px solid #ffe680;color:white;text-shadow:1px 2px #b95200,-1px -1px #c55b00;box-shadow:0 4px #c16a00;font:1rem Marvin,Fredoka,sans-serif;padding:0 23px;cursor:pointer}button:focus-visible,input:focus-visible,.logo:focus-visible{outline:2px solid #5deaff;outline-offset:4px}#status:not(:empty){margin:18px 0 10px}dl{text-align:left;padding:14px;background:#0005;border-radius:12px}dt{font-weight:700}dd{margin:0 0 10px;overflow-wrap:anywhere}.signoff{margin:28px 0 0;color:#95959b;font-weight:700}@media(max-width:530px){form{flex-direction:column}.panel{padding:24px 16px}}
+</style>
+<main><a class="logo" href="./" aria-label="Back to dice"><img src="offline-dice-logo.png?v=2" width="2172" height="724" alt="Offline Dice"></a><section class="panel"><h1>Session Roll Verifier</h1><p>Enter a Game ID to inspect the latest roll saved in this browser.</p><form id="inspect"><input id="game" aria-label="Game ID" placeholder="Enter Game ID (e.g. #8F3A91)" autocomplete="off" required maxlength="15"><button type="submit">INSPECT ROLLS</button></form><div id="status" role="status"></div><dl id="details" hidden><dt>Game ID</dt><dd id="session"></dd><dt>Roll</dt><dd id="result"></dd><dt>Recorded at</dt><dd id="time"></dd><dt>SHA-256 checksum</dt><dd id="hash"></dd></dl><p class="signoff">have a nice day!</p></section></main>
+<script>
+'use strict';
+const el=id=>document.getElementById(id);
+const query=new URLSearchParams(location.search);
+el('game').value=query.get('id')||'';
+let attempt=0;
+async function inspect(){
+  const current=++attempt;
+  const id=el('game').value.trim().toUpperCase().replace(/^#/,'');
+  el('details').hidden=true;
+  if(!/^[A-Z2-7]{10}$/.test(id)){el('status').textContent='Enter a valid 10-character Game ID.';return;}
+  el('status').textContent='Checking roll record…';
+  try{
+    const saved=JSON.parse(localStorage.getItem('offline-dice-proof:'+id)||'null');
+    if(!saved){el('status').textContent='No roll is saved for this ID in this browser.';return;}
+    const {record,checksum}=saved;
+    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(record)));
+    if(current!==attempt)return;
+    const actual=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
+    if(actual!==checksum||record.id!==id){el('status').textContent='The saved roll does not match its checksum.';return;}
+    el('status').textContent='The saved roll matches its checksum.';
+    el('session').textContent=id;el('result').textContent=record.colors.join(' · ');
+    el('time').textContent=new Date(record.time).toLocaleString();el('hash').textContent=checksum;el('details').hidden=false;
+  }catch{if(current===attempt)el('status').textContent='The saved roll could not be checked.';}
+}
+el('inspect').onsubmit=event=>{event.preventDefault();void inspect();};
+</script>
+</html>

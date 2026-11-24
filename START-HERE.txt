@@ -1,0 +1,1 @@
+Extract all files, then open index.html in your browser. The online count and world rolls are simulated figures.
